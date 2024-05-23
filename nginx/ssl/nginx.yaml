@@ -1,0 +1,36 @@
+services:
+  nginx:
+    container_name: nginx
+    restart: unless-stopped
+    image: nginx
+    ports:
+        - 80:80
+        - 443:443
+    volumes:
+        # replace $HOME with desired dir
+        - $HOME/nginx/nginx.conf:/etc/nginx/nginx.conf
+        - $HOME/certbot/conf:/etc/letsencrypt
+        - $HOME/certbot/www:/var/www/certbot
+        
+    # add in netwok if upper stream is in network
+    networks:
+        - {network}
+
+  certbot:
+    image: certbot/certbot
+    container_name: certbot
+    volumes: 
+      # replace $HOME with desired dir
+      - $HOME/certbot/conf:/etc/letsencrypt
+      - $HOME/certbot/www:/var/www/certbot
+    command: certonly --webroot -w /var/www/certbot --force-renewal --email {email} -d {domain1} -d {domain2} --agree-tos
+    # add in netwok if upper stream is in network
+    networks:
+      - {network}
+  
+
+networks:
+  {network}:
+    external: true
+
+          
